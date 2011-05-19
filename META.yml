@@ -19,6 +19,7 @@ requires:
   HTTP::Daemon: 0
   HTTP::Daemon::SSL: 0
   HTTP::Parser: 0
+  HTTP::Request::AsCGI: 0
   IO::Handle::Record: 0
   JSON: 0
   Log::Any: 0
@@ -36,4 +37,4 @@ requires:
 resources:
   homepage: http://search.cpan.org/dist/Sub-Spec-HTTP-Server/
   repository: http://github.com/sharyanto/perl-Sub-Spec-HTTP-Server
-version: 0.01
+version: 0.02

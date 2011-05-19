@@ -1,11 +1,8 @@
 package SHARYANTO::YAML::Any;
-BEGIN {
-  $SHARYANTO::YAML::Any::VERSION = '0.01';
-}
-BEGIN {
-  $SHARYANTO::YAML::Any::VERSION = '0.72';
-}
-# ABSTRACT: SHARYANTO::YAML::Any - Pick a YAML implementation and use it.
+# ABSTRACT: Pick a YAML implementation and use it.
+
+# NOTE: temporary namespace, will eventually be refactored, tidied up, and sent
+# to a more proper namespace.
 
 use 5.010;
 use strict;
@@ -14,6 +11,8 @@ use Exporter ();
 our @ISA       = qw(Exporter);
 our @EXPORT    = qw(Dump Load);
 our @EXPORT_OK = qw(DumpFile LoadFile);
+
+our $VERSION   = '0.72';
 
 use YAML::Syck;
 $YAML::Syck::ImplicitTyping = 1;
@@ -25,11 +24,11 @@ __END__
 
 =head1 NAME
 
-SHARYANTO::YAML::Any - SHARYANTO::YAML::Any - Pick a YAML implementation and use it.
+SHARYANTO::YAML::Any - Pick a YAML implementation and use it.
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 AUTHOR
 

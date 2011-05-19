@@ -2,7 +2,7 @@ NAME
     Sub::Spec::HTTP::Server - Serve subroutine calls via HTTP/HTTPS
 
 VERSION
-    version 0.01
+    version 0.02
 
 SYNOPSIS
     In your program:
@@ -231,16 +231,16 @@ METHODS
     The default implementation will simply looks for the spec in %SPEC in
     the package specified in $server->req->{sub_module}.
 
-$server->auth()
+  $server->auth()
     Authenticate client. Override this if needed. The default implementation
     does nothing. Authenticated client should be put in
     $server->req->{auth_user}.
 
-$server->authz()
+  $server->authz()
     Authorize client. Override this if needed. The default implementation
     does nothing.
 
-$server->call_sub()
+  $server->call_sub()
     Call function specified in $server->req->{module} and
     $server->req->{sub}) using arguments specified in $server->req->{args}.
     Set $server->resp() with the return value of function.

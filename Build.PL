@@ -17,7 +17,7 @@ my %module_build_args = (
     'Steven Haryanto <stevenharyanto@gmail.com>'
   ],
   'dist_name' => 'Sub-Spec-HTTP-Server',
-  'dist_version' => '0.01',
+  'dist_version' => '0.02',
   'license' => 'perl',
   'module_name' => 'Sub::Spec::HTTP::Server',
   'recommends' => {},
@@ -28,6 +28,7 @@ my %module_build_args = (
     'HTTP::Daemon' => '0',
     'HTTP::Daemon::SSL' => '0',
     'HTTP::Parser' => '0',
+    'HTTP::Request::AsCGI' => '0',
     'IO::Handle::Record' => '0',
     'JSON' => '0',
     'Log::Any' => '0',

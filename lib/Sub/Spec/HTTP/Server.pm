@@ -1,6 +1,6 @@
 package Sub::Spec::HTTP::Server;
 BEGIN {
-  $Sub::Spec::HTTP::Server::VERSION = '0.01';
+  $Sub::Spec::HTTP::Server::VERSION = '0.02';
 }
 # ABSTRACT: Serve subroutine calls via HTTP/HTTPS
 
@@ -218,7 +218,7 @@ sub _after_init {
         my %args = (LocalPort => $port, Reuse => 1);
         $args{LocalHost} = $host if $host;
         my $sock = HTTP::Daemon->new(%args);
-        die sprintf("Unable to bind to TCP socket %s:%d", $port, $host//"*")
+        die sprintf("Unable to bind to TCP socket %s:%d", $host//"*", $port)
             unless $sock;
         push @server_socks, $sock;
     }
@@ -227,7 +227,7 @@ sub _after_init {
         my $port = $self->https_port;
         my $host = $self->https_bind_host;
         $log->infof("Binding to TCP socket %s:%d (https) ...",
-                   $host // "*", $port);
+                   $host//"*", $port);
         my %args = (LocalPort => $port, Reuse => 1);
         $args{LocalHost} = $host if $host;
         # currently commented out, hangs with larger POST
@@ -244,12 +244,13 @@ sub _after_init {
 
         die sprintf("Unable to bind to TCP socket %s:%d, common cause include ".
                         "port taken or missing server key/cert file",
-                    $host // "*", $port)
+                    $host//"*", $port)
             unless $sock;
         push @server_socks, $sock;
     }
 
     $self->_server_socks(\@server_socks);
+    $self->before_prefork();
 }
 
 
@@ -782,7 +783,7 @@ Sub::Spec::HTTP::Server - Serve subroutine calls via HTTP/HTTPS
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 SYNOPSIS
 
@@ -1048,17 +1049,17 @@ Get sub's spec. Result should be put in $server->req->{sub_spec}.
 The default implementation will simply looks for the spec in %SPEC in the
 package specified in $server->req->{sub_module}.
 
-=head1 $server->auth()
+=head2 $server->auth()
 
 Authenticate client. Override this if needed. The default implementation does
 nothing. Authenticated client should be put in $server->req->{auth_user}.
 
-=head1 $server->authz()
+=head2 $server->authz()
 
 Authorize client. Override this if needed. The default implementation does
 nothing.
 
-=head1 $server->call_sub()
+=head2 $server->call_sub()
 
 Call function specified in $server->req->{module} and $server->req->{sub}) using
 arguments specified in $server->req->{args}. Set $server->resp() with the return

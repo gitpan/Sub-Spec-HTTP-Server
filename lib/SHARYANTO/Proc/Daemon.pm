@@ -1,7 +1,11 @@
 package SHARYANTO::Proc::Daemon;
 BEGIN {
-  $SHARYANTO::Proc::Daemon::VERSION = '0.01';
+  $SHARYANTO::Proc::Daemon::VERSION = '0.02';
 }
+# ABSTRACT: Create preforking, autoreloading daemons
+
+# NOTE: temporary namespace, will eventually be refactored, tidied up, and sent
+# to a more proper namespace.
 
 
 # routines for a preforking, autoreloading daemon
@@ -330,11 +334,11 @@ __END__
 
 =head1 NAME
 
-SHARYANTO::Proc::Daemon
+SHARYANTO::Proc::Daemon - Create preforking, autoreloading daemons
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =for Pod::Coverage .
 
