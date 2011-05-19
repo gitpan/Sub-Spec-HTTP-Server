@@ -1,0 +1,16 @@
+Build.PL
+Changes
+LICENSE
+MANIFEST
+MANIFEST.SKIP
+META.yml
+README
+dist.ini
+lib/SHARYANTO/Proc/Daemon.pm
+lib/SHARYANTO/YAML/Any.pm
+lib/SHARYANTO/YAML/Any_SyckOnly.pm
+lib/SHARYANTO/YAML/Any_YAMLAny.pm
+lib/Sub/Spec/HTTP/Server.pm
+t/00-compile.t
+t/release-pod-coverage.t
+t/release-pod-syntax.t
