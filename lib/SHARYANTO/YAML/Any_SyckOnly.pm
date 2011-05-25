@@ -28,7 +28,7 @@ SHARYANTO::YAML::Any - Pick a YAML implementation and use it.
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 AUTHOR
 
