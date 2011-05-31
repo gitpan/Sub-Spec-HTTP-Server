@@ -1,6 +1,6 @@
 package SHARYANTO::YAML::Any;
 BEGIN {
-  $SHARYANTO::YAML::Any::VERSION = '0.03';
+  $SHARYANTO::YAML::Any::VERSION = '0.04';
 }
 # Pick a YAML implementation and use it.
 
@@ -145,7 +145,7 @@ SHARYANTO::YAML::Any
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 SYNOPSIS
 
@@ -207,6 +207,8 @@ and the following subroutines are exportable by request:
 =head1 METHODS
 
 YAML::Any provides the following class methods.
+
+=for Pod::Coverage .*
 
 =over
 

@@ -2,7 +2,7 @@ NAME
     Sub::Spec::HTTP::Server - Serve subroutine calls via HTTP/HTTPS
 
 VERSION
-    version 0.03
+    version 0.04
 
 SYNOPSIS
     In your program:

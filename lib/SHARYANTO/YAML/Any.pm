@@ -19,7 +19,7 @@ $YAML::Syck::ImplicitTyping = 1;
 
 1;
 
-__END__
+
 =pod
 
 =head1 NAME
@@ -28,7 +28,9 @@ SHARYANTO::YAML::Any - Pick a YAML implementation and use it.
 
 =head1 VERSION
 
-version 0.03
+version 0.04
+
+=for Pod::Coverage .*
 
 =head1 AUTHOR
 
@@ -42,4 +44,7 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
+
+
+__END__
 
