@@ -17,7 +17,7 @@ my %module_build_args = (
     'Steven Haryanto <stevenharyanto@gmail.com>'
   ],
   'dist_name' => 'Sub-Spec-HTTP-Server',
-  'dist_version' => '0.04',
+  'dist_version' => '0.05',
   'license' => 'perl',
   'module_name' => 'Sub::Spec::HTTP::Server',
   'recommends' => {},
@@ -36,6 +36,7 @@ my %module_build_args = (
     'Log::Any::Adapter::Callback' => '0',
     'Moo' => '0',
     'PHP::Serialization' => '0',
+    'SHARYANTO::Utils' => '0',
     'Sub::Spec' => '0.13',
     'Sub::Spec::Caller' => '0',
     'Sub::Spec::CmdLine' => '0',

@@ -1,6 +1,6 @@
 package Sub::Spec::HTTP::Server;
 BEGIN {
-  $Sub::Spec::HTTP::Server::VERSION = '0.04';
+  $Sub::Spec::HTTP::Server::VERSION = '0.05';
 }
 # ABSTRACT: Serve subroutine calls via HTTP/HTTPS
 
@@ -286,6 +286,8 @@ sub handle_request {
                     $req->{sock}->print(
                         sprintf("%02x\r\n", length($msg)),
                         $msg, "\r\n");
+                    # this seems needed?
+                    $req->{sock}->flush();
                     # XXX also log to the previous adapter
                 },
             );
@@ -793,7 +795,7 @@ Sub::Spec::HTTP::Server - Serve subroutine calls via HTTP/HTTPS
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
 =head1 SYNOPSIS
 
