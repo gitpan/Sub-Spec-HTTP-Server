@@ -1,5 +1,5 @@
 ---
-abstract: 'Serve subroutine calls via HTTP/HTTPS'
+abstract: 'PSGI application to serve remote (HTTP) subroutine call requests'
 author:
   - 'Steven Haryanto <stevenharyanto@gmail.com>'
 build_requires:
@@ -14,28 +14,22 @@ meta-spec:
   version: 1.4
 name: Sub-Spec-HTTP-Server
 requires:
-  CGI::Lite: 0
-  Capture::Tiny: 0
-  HTTP::Daemon: 0
-  HTTP::Daemon::SSL: 0
-  HTTP::Parser: 0
-  HTTP::Request::AsCGI: 0
-  IO::Handle::Record: 0
-  JSON: 0
-  Log::Any: 0
+  Data::Format::Pretty: 0
+  Data::Format::Pretty::JSON: 0
+  Data::Format::Pretty::PHP: 0
+  Data::Format::Pretty::YAML: 0
   Log::Any::Adapter: 0
   Log::Any::Adapter::Callback: 0
-  Moo: 0
-  PHP::Serialization: 0
-  SHARYANTO::Utils: 0
-  Sub::Spec: 0.13
+  Module::List: 0
+  Plack: 0
+  Sub::Spec: 0.14
   Sub::Spec::Caller: 0
-  Sub::Spec::CmdLine: 0
+  Sub::Spec::GetArgs::Array: 0
   Test::More: 0.96
-  Time::HiRes: 0
+  URI::Escape: 0
   YAML::Syck: 0
   perl: 5.010000
 resources:
   homepage: http://search.cpan.org/dist/Sub-Spec-HTTP-Server/
   repository: http://github.com/sharyanto/perl-Sub-Spec-HTTP-Server
-version: 0.05
+version: 0.06

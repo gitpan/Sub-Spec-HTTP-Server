@@ -1,280 +1,192 @@
 NAME
-    Sub::Spec::HTTP::Server - Serve subroutine calls via HTTP/HTTPS
+    Sub::Spec::HTTP::Server - PSGI application to serve remote (HTTP)
+    subroutine call requests
 
 VERSION
-    version 0.05
+    version 0.06
 
 SYNOPSIS
-    In your program:
+    Suppose you want to expose functions in "My::API::Adder" and
+    "My::API::Adder::Array" as HTTP API functions, using URL
+    http://<host>/api/v1/<module>/<func>:
 
-     use Sub::Spec::HTTP::Server;
-     use My::Module1;
-     use My::Module2;
+     package My::API::Adder;
+     our %SPEC;
+     $SPEC{add} = {args => {a=>["float*"=>{arg_pos=>0}],
+                            b=>["float*"=>{arg_pos=>1}]}};
+     sub add { my %args=@_; [200, "OK", $args{a}+$args{b}] }
+     1;
 
-     my $server = Sub::Spec::HTTP::Server->new(
-         sock_path   => '/var/run/apid.sock',  # activate listening to Unix socket
-         #http_port  => 949,                   # default is 80
-         #https_port => 1234,                  # activate https
-         #ssl_key_file => '/path/to/key.pem',  # need this for https
-         #ssl_cert_file => '/path/to/crt.pem', # need this for https
-         #max_requests_per_child => 100,       # default is 1000
-         #start_servers => 0,                  # default is 3, 0 means don't prefork
-         #daemonize => 0,                      # do not go to background
-     );
-     $server->run;
+     package My::API::Adder::Array;
+     $SPEC{add_array} = {
+         summary => 'Concatenate two arrays together',
+         args => {a1=>["array*" => {summary => 'First array'}],
+                  a2=>["array*" => {summary => 'Second array'}]},
+     };
+     sub add { my %args=@_; [200, "OK", [@{$args{a1}}, @{$args{a2}}]] }
+     1;
 
-    After running the program, accessing:
+    First, write "app.psgi":
 
-     http://localhost:949/My/Module2/func?arg1=1&arg2=2
+     #!perl
+     use Plack::Builder;
 
-    You will be getting a JSON response:
+     builder {
+         # this is the basic composition
+         enable "SubSpec::LogAccess";
+         enable "SubSpec::ParseRequest"
+             uri_pattern => qr!^/api/v1/(?<module>[^?]+)/(?<sub>[^?/]+)!,
+             after_parse => sub {
+                 my $env = shift;
+                 for ($env->{"ss.request.module"}) {
+                     last unless $_;
+                     s!/!::!g;
+                     $_ = "My::API::$_" unless /^My::API::/;
+                 }
+             };
+         enable "SubSpec::LoadModule";
+         enable "SubSpec::GetSpec";
+         enable "SubSpec::Command::call";
+         enable "SubSpec::Command::help";
+         enable "SubSpec::Command::spec";
+         enable "SubSpec::Command::listmod";
+         enable "SubSpec::Command::listsub";
+     };
 
-     [200,"OK",{"the":"result data"}]
+    Run the app with PSGI server, e.g. Gepok:
+
+     % plackup -s Gepok --https_ports 5001 \
+           --ssl_key_file /path/to/ssl.key --ssl_cert_file /path/to/ssl.crt
+
+    Call your functions over HTTP(S)?:
+
+     % curl http://localhost:5000/api/v1/Adder/add/2/3
+     [200,"OK",6]
+
+     % curl -H 'X-SS-Log-Level: trace' \
+       'https://localhost:5001/api/v1/Adder/Array/add?a1:j=[1]&a2:j=[2,3]'
+     [200,"OK",[1,2,3]]
+
+    Request help/usage information:
+
+     % curl -H 'X-SS-Command: help' \
+       'http://localhost:5000/api/v1/Adder/Array/add'
+     My::API::Adder::Array::add - Concatenate two arrays together
+
+     Arguments:
+       a1   (array, required) First array
+       a2   (array, required) Second array
+
+    List available function in a module:
+
+     % curl -H 'X-SS-Command: listsub' \
+       'http://localhost:5000/api/v1/Adder/Array'
+     ['add_array']
+
+    List available modules:
+
+     % curl -H 'X-SS-Command: listmod' \
+       'http://localhost:5000/api/v1/Adder/Array'
+     ['add_array']
 
 DESCRIPTION
-    This class is a preforking HTTP (TCP and Unix socket)/HTTPS (TCP) daemon
-    for serving function call requests (usually for API calls). All
-    functions should have Sub::Spec specs.
+    Sub::Spec::HTTP::*Server* is a PSGI *application* to serve remote (HTTP)
+    subroutine call requests. It is suitable for serving remote API. (Sorry
+    for the slight confusion between "server" and "application"; this module
+    was not originally PSGI-based.)
+
+    As the case with any PSGI application, you can use any *PSGI server* to
+    run it with. But you might want to consider Gepok, which has built-in
+    HTTPS support.
+
+    This PSGI application is actually a set of modular middlewares
+    (Plack::Middleware::SubSpec::*) which you can compose in your app.psgi,
+    configuring each one and including only the ones you need. The Synopsis
+    shows one such basic composition. There are more middlewares to do
+    custom stuffs. See each middleware's documentation for details.
 
     This module uses Log::Any for logging.
 
     This module uses Moo for object system.
 
-ATTRIBUTES
-  name => STR
-    Name of server, for display in process table ('ps ax'). Default is
-    basename of $0.
-
-  daemonize => BOOL
-    Whether to daemonize (go into background). Default is true.
-
-  sock_path => STR
-    Location of Unix socket. Default is none, which means not listening to
-    Unix socket.
-
-  pid_path => STR
-    Location of PID file. Default is /var/run/<name>.pid.
-
-  error_log_path => STR
-    Location of error log. Default is /var/log/<name>-error.log. It will be
-    opened in append mode.
-
-  access_log_path => STR
-    Location of access log. Default is /var/log/<name>-access.log. It will
-    be opened in append mode.
-
-  access_log_max_args_len => INT
-    Maximum number of characters to log args (in JSON format). Default is
-    1024. Over this length, only the first 1024 characters are logged.
-
-  access_log_max_resp_len => INT
-    Maximum number of characters to log response (in JSON format). Default
-    is 1024. Over this length, only the first 1024 characters are logged.
-
-  http_port => INT
-    Port to listen to HTTP requests. Default is 80. Undef means not
-    listening for HTTP requests. Note that in Unix environment, binding to
-    ports 1024 and below requires superuser privileges.
-
-  http_bind_host => STR
-    If you only want to bind to a specific interface for HTTP, specify it
-    here, for example 'localhost' or '1.2.3.4'. Setting to undef or '' means
-    to bind to all interface ('*'). Default is 'localhost'.
-
-  https_port => INT
-    Port to listen to HTTPS requests. Default is undef. Undef means not
-    listening for HTTPS requests. Note that in Unix environment, binding to
-    ports 1024 and below requires superuser privileges.
-
-  https_bind_host => STR
-    If you only want to bind to a specific interface for HTTPS, specify it
-    here, for example 'localhost' or '1.2.3.4'. Setting to undef or '' means
-    to bind to all interface ('*'). Default is 'localhost'.
-
-  ssl_key_file => STR
-    Path to SSL key file, to be passed to HTTP::Daemon::SSL. If you enable
-    HTTPS, you need to supply this.
-
-  ssl_cert_file => STR
-    Path to SSL cert file, to be passed to HTTP::Daemon::SSL. If you enable
-    HTTPS, you need to supply this.
-
-  start_servers
-    Number of children to fork at the start of run. Default is 3. If you set
-    this to 0, the server becomes a nonforking one.
-
-    Tip: You can set start_servers to 0 and 'daemonize' to false for
-    debugging.
-
-  max_requests_per_child
-    Number of requests each child will serve until it exists. Default is
-    1000.
-
-  module_prefix
-    Prefix for module. Default is none. Affects get_sub_name().
-
-  req
-    The request object, will be set at the start of each request (before
-    handle_request() is run). Currently this is a barebones hash, but will
-    be a proper object.
-
-  resp
-    The response, should be in the form of [HTTP_STATUS_CODE, MESSAGE,
-    DATA].
-
-METHODS
-  new()
-    Create a new server object.
-
-  $server->stop()
-    Stop running server.
-
-  $server->run()
-    Run server.
-
-  $server->restart()
-    Restart server.
-
-  $server->is_running() => BOOL
-    Check whether server is running
-
-  $server->before_prefork()
-    Override this hook to do stuffs before preforking. For example, you can
-    preload all modules. This is more efficient than each children loading
-    modules separately.
-
-    The default implementation does nothing.
-
-  $server->handle_request()
-    The main routine to handle request, will be called by run(). Below is
-    the order of processing. At any time during the request, you can set
-    $server->resp() and die to exit early and directly go to access_log().
-
-    *   before_parse_http_request()
-
-    *   parse_http_request()
-
-    *   get_sub_name()
-
-    *   get_sub_args()
-
-    *   auth()
-
-    *   get_sub_spec()
-
-    *   authz()
-
-    *   call_sub()
-
-    *   send_http_response()
-
-    *   after_send_http_response()
-
-    *   access_log()
-
-  $server->before_parse_http_request()
-    Override this to add action before HTTP request is parsed.
-
-  $server->parse_http_request()
-    Parse HTTP request (result in $server->req->{http_req}). Will be called
-    by handle_request().
-
-  $server->get_sub_name()
-    Parse sub's fully qualified name from HTTP request object. Result should
-    be put in $server->req->{sub_module} and $server->req->{sub_name}.
-
-    You can override this method to provide other URL syntax. The default
-    implementation parses URI using this syntax:
-
-     /MODULE/SUBMODULE/FUNCTION
-
-    which will result in sub_module being 'MODULE::SUBMODULE' and sub_name
-    'FUNCTION'. In addition, some options are allowed:
-
-     /MODULE/SUBMODULE/FUNCTION;OPTS
-
-    OPTS are a string of one or more option letters. 'j' means to ask server
-    to return response in JSON format. 'r' (the default) means return in
-    pretty formatted text (e.g. tables). 'R' means return in
-    non-pretty/plain text. 'y' means return in YAML. 'p' means return in PHP
-    serialization format.
-
-    For example:
-
-     /My/Module/my_func;j
-
-    If 'module_prefix' attribute is set, it will be prepended to
-    $server->req->{sub_module}. For example, if 'module_prefix' is
-    'Our::Project', then with the above URI, the final sub_module will
-    become 'Our::Project::My::Module'.
-
-  $server->get_sub_args()
-    Parse sub's args from HTTP request object. Result should be put in
-    $server->req->{sub_args}. It should be a hashref.
-
-    The default implementation can get args from request body in PHP
-    serialization format (if "Content-Type" HTTP request header is set to
-    "application/vnd.php.serialized") or JSON ("application/json") or YAML
-    ("text/yaml").
-
-    Alternatively, it can get args from URL query parameters. Each query
-    parameter corresponds to an argument name. If you add ":j" suffix to
-    query parameter name, it means query parameter value is in JSON format.
-    If ":y" suffix, YAML format. If ":p", PHP serialization format.
-
-    You can override this method to provide other ways to parse arguments
-    from HTTP request.
-
-  $server->get_sub_args()
-    Get sub's spec. Result should be put in $server->req->{sub_spec}.
-
-    The default implementation will simply looks for the spec in %SPEC in
-    the package specified in $server->req->{sub_module}.
-
-  $server->auth()
-    Authenticate client. Override this if needed. The default implementation
-    does nothing. Authenticated client should be put in
-    $server->req->{auth_user}.
-
-  $server->authz()
-    Authorize client. Override this if needed. The default implementation
-    does nothing.
-
-  $server->call_sub()
-    Call function specified in $server->req->{module} and
-    $server->req->{sub}) using arguments specified in $server->req->{args}.
-    Set $server->resp() with the return value of function.
-
-  $server->send_http_response()
-    Send HTTP response to client. Called by handle_request().
-
-  $server->after_send_http_response()
-    Hook to do stuffs before logging. The default implementation does
-    nothing. You can override this e.g. to mask some arguments from being
-    logged or limit its size.
-
-  $server->access_log()
-    Log request. The default implementation logs like this (all in one
-    line):
-
-     [Fri Feb 18 22:05:38 2011] "GET /v1/MyModule/my_func;j?arg1=1&arg2=2"
-     [127.0.0.1:949] [-] [mod MyModule] [sub my_func]
-     [args 14 {"name":"val"}] [resp 12 [200,"OK",1]] [subt 2.123ms] [reqt 5.947ms]
-
-    where subt is time spent in the subroutine, and reqt is time spent for
-    the whole request (from connect until response is sent, which includes
-    reqt).
-
 FAQ
-BUGS/TODOS
-    I would like to use Plack/PSGI, but the current implementation of this
-    module (using HTTP::Daemon + HTTP::Daemon::SSL) conveniently supports
-    HTTPS out of the box.
+  I want to expose just a single module and provide a simpler API URL (e.g. without having to specify module name).
+    You can do something like this:
+
+     enable "SubSpec::ParseRequest"
+         uri_pattern => qr!^/api/v1/(?<sub>[^?/]+)!,
+         after_parse => sub {
+             my $env = shift;
+             $env->{"ss.request.module"} = "Foo";
+         };
+
+I want to let user specify output format from URI (e.g. /api/v1/json/... or /api/v1/yaml/...)
+    You can do something like:
+
+     enable "SubSpec::ParseRequest"
+         uri_pattern => qr!^/api/v1/(?:json|yaml)/(?<sub>[^?/]+)/(?<sub>[^?/]+)!,
+         after_parse => sub {
+             my $env = shift;
+             $env->{REQUEST_URI} =~ m!^/api/v1/(json|yaml)!;
+             $env->{"ss.request.opts"}{output_format} = $1;
+         };
+
+I want to support another output format (e.g. XML, MessagePack, etc).
+    Subclass Plack::Middleware::SubSpec::ServeCall and add format_<fmtname>
+    method. The method accepts sub response and is expected to return a
+    tuplet ($output, $content_type).
+
+I need custom URI syntax (e.g. not exposing real module and/or func name)
+    You can use ParseRequest and provide a generic uri_pattern and then
+    complete the request information in after_parse. For example:
+
+     enable "SubSpec::ParseRequest"
+         uri_pattern => qr!!, # match anything
+         after_parse => sub {
+             my $env = shift;
+             # parse REQUEST_URI on your own and put the result in
+             # $env->{"ss.request.module"} and $env->{"ss.request.sub"}
+         };
+
+    Or alternatively you can write your own request parser to replace
+    ParseRequest.
+
+  I want to automatically load requested modules.
+    Enable the Plack::Middleware::SubSpec::LoadModule middleware.
+
+  I want to limit only certain modules can be requested.
+    In ParseRequest's after_parse, you can return a 400 error response if
+    module name ("$env-"{"ss.request.module"}>) does not satisfy your
+    restrictions.
+
+  I want to automatically reload modules that changed on disk.
+    Use one of the module-reloading module on CPAN, e.g.: Module::Reload or
+    Module::Reload::Conditional. Do it before/after the SubSpec::LoadModule
+    middleware.
+
+  I want to authenticate clients.
+    Enable Plack::Middleware::Auth::Basic (or other authen middleware you
+    prefer) before SubSpec::ParseRequest.
+
+  I want to authorize clients.
+    Take a look at Plack::Middleware::SubSpec::Authz::ACL which allows
+    authorization based on various conditions. Normally this is put after
+    authentication and before any request serving middleware
+    (Plack::Middleware::SubSpec::Server*).
+
+  I want to support new commands.
+    You can write a Plack::Middleware::SubSpec::Command::<cmdname>
+    middleware and enable it at the appropriate position in your PSGI
+    application. But first consider if that is really what you want. If you
+    want to serve static files or do stuffs unrelated to calling subroutines
+    or subroutine spec, you ought to put it somewhere else.
 
 SEE ALSO
     Sub::Spec
 
     Sub::Spec::HTTP::Client
+
+    Gepok
 
 AUTHOR
     Steven Haryanto <stevenharyanto@gmail.com>
