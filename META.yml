@@ -15,16 +15,20 @@ meta-spec:
 name: Sub-Spec-HTTP-Server
 requires:
   Data::Format::Pretty: 0
+  Data::Format::Pretty::HTML: 0
   Data::Format::Pretty::JSON: 0
-  Data::Format::Pretty::PHP: 0
+  Data::Format::Pretty::PHPSerialization: 0
   Data::Format::Pretty::YAML: 0
+  Data::Rmap: 0
   Log::Any::Adapter: 0
   Log::Any::Adapter::Callback: 0
-  Module::List: 0
   Plack: 0
-  Sub::Spec: 0.14
-  Sub::Spec::Caller: 0
+  Sub::Spec: 1.0.1
   Sub::Spec::GetArgs::Array: 0
+  Sub::Spec::HTTP: 1.0.1
+  Sub::Spec::To::Text::Usage: 0
+  Sub::Spec::URI: 0
+  Sub::Spec::URI::http: 0
   Test::More: 0.96
   URI::Escape: 0
   YAML::Syck: 0
@@ -32,4 +36,4 @@ requires:
 resources:
   homepage: http://search.cpan.org/dist/Sub-Spec-HTTP-Server/
   repository: http://github.com/sharyanto/perl-Sub-Spec-HTTP-Server
-version: 0.06
+version: 0.07

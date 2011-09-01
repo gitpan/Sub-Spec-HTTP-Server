@@ -9,7 +9,7 @@ use Plack::Util::Accessor qw(acl acl_file autoreload_acl_file);
 
 use Plack::Util::SubSpec qw(errpage);
 
-our $VERSION = '0.06'; # VERSION
+our $VERSION = '0.07'; # VERSION
 
 sub prepare_app {
     my $self = shift;
@@ -35,7 +35,7 @@ Plack::Middleware::SubSpec::Authz::ACL - Authorize client using access-control l
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 

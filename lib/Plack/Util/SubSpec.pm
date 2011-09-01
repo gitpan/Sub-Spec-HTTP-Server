@@ -1,16 +1,31 @@
 package Plack::Util::SubSpec;
 
-our @ISA = qw(Exporter);
-our @EXPORT_OK = qw(errpage);
+use 5.010;
+use strict;
+use warnings;
 
-our $VERSION = '0.06'; # VERSION
+our @ISA = qw(Exporter);
+our @EXPORT_OK = qw(errpage allowed);
+
+our $VERSION = '0.07'; # VERSION
 
 sub errpage {
     my ($msg, $code) = @_;
     $msg .= "\n" unless $msg =~ /\n\z/;
-    [$code // 400,
+    $code //= 400;
+    $msg = "$code - $msg";
+    [$code,
      ["Content-Type" => "text/plain", "Content-Length" => length($msg)],
      [$msg]];
+}
+
+sub allowed {
+    my ($value, $pred) = @_;
+    if (ref($pred) eq 'ARRAY') {
+        return $value ~~ @$pred;
+    } else {
+        return $value =~ /$pred/;
+    }
 }
 
 1;
@@ -24,7 +39,7 @@ Plack::Util::SubSpec
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 AUTHOR
 
