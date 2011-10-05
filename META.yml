@@ -36,4 +36,4 @@ requires:
 resources:
   homepage: http://search.cpan.org/dist/Sub-Spec-HTTP-Server/
   repository: http://github.com/sharyanto/perl-Sub-Spec-HTTP-Server
-version: 0.07
+version: 0.08

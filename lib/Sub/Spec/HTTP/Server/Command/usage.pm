@@ -6,7 +6,7 @@ use warnings;
 
 use Sub::Spec::To::Text::Usage qw(spec_to_usage);
 
-our $VERSION = '0.07'; # VERSION
+our $VERSION = '0.08'; # VERSION
 
 sub handle_usage {
     my ($env) = @_;
@@ -30,7 +30,7 @@ Sub::Spec::HTTP::Server::Command - Return function usage information
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS
 

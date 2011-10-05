@@ -4,7 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.07'; # VERSION
+our $VERSION = '0.08'; # VERSION
 
 1;
 # ABSTRACT: PSGI application to serve remote (HTTP) subroutine call requests
@@ -18,7 +18,7 @@ Sub::Spec::HTTP::Server - PSGI application to serve remote (HTTP) subroutine cal
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS
 

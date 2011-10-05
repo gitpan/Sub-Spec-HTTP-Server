@@ -4,7 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.07'; # VERSION
+our $VERSION = '0.08'; # VERSION
 
 sub handle_about {
     my ($env) = @_;
@@ -32,7 +32,7 @@ Sub::Spec::HTTP::Server::Command - Return information about the server and reque
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS
 
