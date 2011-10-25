@@ -7,7 +7,7 @@ use warnings;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(errpage allowed);
 
-our $VERSION = '0.08'; # VERSION
+our $VERSION = '0.09'; # VERSION
 
 sub errpage {
     my ($msg, $code) = @_;
@@ -39,7 +39,7 @@ Plack::Util::SubSpec
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 AUTHOR
 

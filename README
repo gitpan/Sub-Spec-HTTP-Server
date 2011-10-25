@@ -3,12 +3,12 @@ NAME
     subroutine call requests
 
 VERSION
-    version 0.08
+    version 0.09
 
 SYNOPSIS
     Suppose you want to expose functions in "My::API::Adder" and
     "My::API::Adder::Array" as HTTP API functions, using URL
-    http://<host>/api/v1/<module>/<func>:
+    http://<host>/api/<module>/<func>:
 
      package My::API::Adder;
      our %SPEC;
@@ -27,53 +27,25 @@ SYNOPSIS
      sub add { my %args=@_; [200, "OK", [@{$args{a1}}, @{$args{a2}}]] }
      1;
 
-    First, write "app.psgi":
+     # or just write any normal Perl module without any specs
 
-     #!perl
-     use Plack::Builder;
-     use Plack::Util::SubSpec qw(errpage)
-     use Sub::Spec::HTTP::Server::Command qw(
-         about call help listmod listsub usage);
+    Then:
 
-     builder {
-         # this is the basic composition
-         enable "SubSpec::LogAccess";
-         enable "SubSpec::ParseRequest"
-             uri_pattern => qr!^/api/v1
-                               (?:/(?<module>[^?]+)
-                                 (?:/(?<sub>[^?/]+)?)
-                               )?!x,
-             after_parse => sub {
-                 my $env = shift;
-                 my $m = $env->{"ss.uri_pattern_matches"};
-                 if ($m->{module}) {
-                     my $mod = "My::API::$m->{module}";
-                     $env->{"ss.request"}{uri} = "pm:$mod" .
-                         ($m->{sub} ? "/$m->{sub}" : "");
-                     $_ = "My::API::$_" unless /^My::API::/;
-                 }
-             };
-         enable "SubSpec::HandleCommand";
-     };
+     $ servepm My::API::Adder My::API::Adder::Array
 
-    Run the app with PSGI server, e.g. Gepok:
+    Then call your functions over HTTP(S)?:
 
-     % plackup -s Gepok --https_ports 5001 \
-           --ssl_key_file /path/to/ssl.key --ssl_cert_file /path/to/ssl.crt
-
-    Call your functions over HTTP(S)?:
-
-     % curl http://localhost:5000/api/v1/Adder/add/2/3
+     % curl http://localhost:5000/api/My::API::Adder/add/2/3
      [200,"OK",6]
 
      % curl -H 'X-SS-Req-Log-Level: trace' \
-       'https://localhost:5001/api/v1/Adder/Array/add?a1:j=[1]&a2:j=[2,3]'
+       'http://localhost:5000/api/My::API::Adder::Array/add?a1:j=[1]&a2:j=[2,3]'
      [200,"OK",[1,2,3]]
 
     Request help/usage information:
 
      % curl -H 'X-SS-Req-Command: help' \
-       'http://localhost:5000/api/v1/Adder/Array/add'
+       'http://localhost:5000/api/My::API::Adder::Array/add'
      My::API::Adder::Array::add - Concatenate two arrays together
 
      Arguments:
@@ -83,14 +55,14 @@ SYNOPSIS
     List available function in a module (request key 'command' given in
     request variable):
 
-     % curl 'http://localhost:5000/api/v1/Adder/Array?-ss-req-command=list_subs'
-     ['add_array']
+     % curl 'http://localhost:5000/api/My::API::Adder?-ss-req-command=list_subs'
+     ['add']
 
     List available modules:
 
      % curl -H 'X-SS-Req-Command: list_mods' \
-       'http://localhost:5000/api/v1/'
-     ['Adder','Adder::Array']
+       'http://localhost:5000/api/'
+     ['My::API::Adder','My::API::Adder::Array']
 
 DESCRIPTION
     Sub::Spec::HTTP::*Server* is a PSGI *application* to serve remote (HTTP)
@@ -113,27 +85,27 @@ DESCRIPTION
     This module uses Moo for object system.
 
 FAQ
-  I don't want to expose my subroutines and module structure!
-    Well, isn't exposing functions the whole point of API?
+  How can I customize URL?
+    For example, instead of:
 
-    If you have modules that you do not want to expose as API, simply
-    exclude it (e.g. using "allowable_modules" configuration in
-    SubSpec::ParseRequest middleware. Or, create a set of wrapper modules to
-    expose only the functionalities that you want to expose.
+     http://localhost:5000/api/My::API::Adder/func
 
-  I want to expose just a single module (e.g. Foo) and provide a simpler API URL (e.g. without having to specify module name).
-    You can do something like this:
+    you want:
 
-     enable "SubSpec::ParseRequest"
-         uri_pattern => qr!^/api/v1/(?<sub>[^?/]+)?!,
-         after_parse => sub {
-             my $env = shift;
-             $env->{"ss.request"}{uri} = "pm:Foo/".
-                 $env->{"ss.uri_pattern_matches"}{sub};
-         };
+     http://localhost:5000/adder/func
 
-I want to let user specify output format from URI (e.g. /api/v1/json/... or /api/v1/yaml/...)
-    You can do something like:
+    or perhaps (if you only have one module to expose):
+
+     http://localhost:5000/func
+
+    You can do this by customizing uri_pattern when enabling
+    SubSpec::ParseRequest middleware (see servepm source code). You just
+    need to make sure that you produce $env->{"ss.request"}{uri} (and other
+    necessary SS request keys).
+
+I want to let user specify output format from URI (e.g. /api/json/... or /api/v1/yaml/...)
+    Again, this can be achieved by customizing the SubSpec::ParseRequest
+    middleware. You can do something like:
 
      enable "SubSpec::ParseRequest"
          uri_pattern => qr!^/api/v1/(?<output_format>json|yaml)/
@@ -152,19 +124,7 @@ I want to let user specify output format from URI (e.g. /api/v1/json/... or /api
              $env->{"ss.request"}{output_format} = $fmt =~ /j/ ? 'json' : 'yaml';
          };
 
-I want to support another output format (e.g. XML, MessagePack, etc).
-    Add a format_<fmtname> method to
-    Plack::Middleware::SubSpec::HandleCommand. The method accepts sub
-    response and is expected to return a tuplet ($output, $content_type).
-
-    Note that you do not have to modify the
-    Plack/Middleware/SubSpec/HandleCommand.pm file itself. You can inject
-    the method from another file.
-
-    Also make sure that the output format is allowed (see configuration
-    "allowable_output_formats" in the command handler middleware).
-
-I need custom URI syntax
+I need even more custom URI syntax
     You can leave "uri_pattern" empty and perform your custom URI parsing in
     "after_parse". For example:
 
@@ -177,6 +137,34 @@ I need custom URI syntax
 
     Or alternatively you can write your own request parser to replace
     ParseRequest.
+
+  I want to enable HTTPS.
+    Supply --https_ports, --ssl_key_file and --ssl_cert_file options in
+    servepm.
+
+  I don't want to expose my subroutines and module structure directly!
+    Well, isn't exposing functions the whole point of API?
+
+    If you have modules that you do not want to expose as API, simply
+    exclude it (e.g. using "allowed_modules" configuration in
+    SubSpec::ParseRequest middleware. Or, create a set of wrapper modules to
+    expose only the functionalities that you want to expose.
+
+    Or, if you have a custom mapping of "modules" and "subs" that are
+    different than Perl's, I recommend you create a new Sub::Spec::URI::xxx
+    implementation.
+
+  I want to support another output format (e.g. XML, MessagePack, etc).
+    Add a format_<fmtname> method to
+    Plack::Middleware::SubSpec::HandleCommand. The method accepts sub
+    response and is expected to return a tuplet ($output, $content_type).
+
+    Note that you do not have to modify the
+    Plack/Middleware/SubSpec/HandleCommand.pm file itself. You can inject
+    the method from another file.
+
+    Also make sure that the output format is allowed (see configuration
+    "allowed_output_formats" in the command handler middleware).
 
   I want to automatically reload modules that changed on disk.
     Use one of the module-reloading module on CPAN, e.g.: Module::Reload or
@@ -193,11 +181,28 @@ I need custom URI syntax
 
   I want to support new commands.
     Write Sub::Spec::HTTP::Server::Command::<cmdname>, and include the
-    command in SubSpec::ParseRequest's "allowable_commands" configuration.
+    command in SubSpec::ParseRequest's "allowed_commands" configuration.
 
     But first consider if that is really what you want. If you want to serve
     static files or do stuffs unrelated to calling subroutines or subroutine
-    spec, you ought to put it somewhere else.
+    spec, you ought to put it somewhere else, e.g.:
+
+     my $app = builder {
+         mount "/api" => builder {
+             enable "SubSpec::ParseRequest", ...;
+             ...
+         },
+         mount "/static" => ...
+     };
+
+TIPS AND TRICKS
+  Proxying API server
+    Not only can you serve local modules ("pm://" URIs), you can serve
+    remote modules ("http://" or "https://" URIs) making your API server a
+    proxy for another.
+
+  Performance tuning
+    To be written.
 
 SEE ALSO
     Sub::Spec::HTTP

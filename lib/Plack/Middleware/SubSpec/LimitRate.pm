@@ -9,7 +9,7 @@ use parent qw(Plack::Middleware);
 
 use Plack::Util::SubSpec qw(errpage);
 
-our $VERSION = '0.08'; # VERSION
+our $VERSION = '0.09'; # VERSION
 
 sub prepare_app {
     my $self = shift;
@@ -35,7 +35,7 @@ Plack::Middleware::SubSpec::LimitRate - Limit access rate
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 SYNOPSIS
 

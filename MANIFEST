@@ -5,6 +5,7 @@ MANIFEST
 MANIFEST.SKIP
 META.yml
 README
+bin/servepm
 dist.ini
 lib/Plack/Middleware/SubSpec/Authz/ACL.pm
 lib/Plack/Middleware/SubSpec/HandleCommand.pm

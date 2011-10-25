@@ -4,7 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.08'; # VERSION
+our $VERSION = '0.09'; # VERSION
 
 sub handle_spec {
     my ($env) = @_;
@@ -27,7 +27,7 @@ Sub::Spec::HTTP::Server::Command - Return subroutine spec
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 SYNOPSIS
 

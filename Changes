@@ -1,4 +1,22 @@
-Revision history for Sub::Spec::HTTP::Server
+Revision history for Sub-Spec-HTTP-Server
+
+0.09     2011-10-24
+
+         [ENHANCEMENTS]
+
+         - Add a simple command-line front-end 'servepm'
+
+         [INCOMPATIBLE CHANGES]
+
+         - Rename 'allowable_*' middleware configs to 'allowed_*'.
+
+         [BUG FIXES]
+
+         - Require latest Log::Any::Adapter::Callback to properly filter log
+           messages according to client-specified level.
+
+         - Some other fixes.
+
 
 0.08     2011-10-05
 
@@ -12,14 +30,17 @@ Revision history for Sub::Spec::HTTP::Server
 
          [INCOMPATIBLE CHANGES]
 
-         - To set request options via HTTP header, now use 'X-SS-Opt-xxxxx'
+         - To set SS request variables via HTTP header, now use 'X-SS-Req-xxxxx'
            instead of 'X-SS-xxxxx'.
 
          - Output format 'php' becomes 'phps'.
 
          [ENHANCEMENTS]
 
-         - Implement 'about'  command.
+         - To set SS request variables via HTTP form variables, use
+           '-ss-req-XXXXX'.
+
+         - Implement 'about' command.
 
          - Implement 'list_subs' command.
 
