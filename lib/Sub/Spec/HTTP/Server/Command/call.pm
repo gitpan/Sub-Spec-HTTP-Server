@@ -4,7 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.09'; # VERSION
+our $VERSION = '0.10'; # VERSION
 
 sub handle_call {
     my ($env) = @_;
@@ -27,7 +27,7 @@ Sub::Spec::HTTP::Server::Command - Handle 'call' command (call subroutine and re
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =head1 SYNOPSIS
 

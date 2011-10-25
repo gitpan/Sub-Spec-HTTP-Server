@@ -31,7 +31,7 @@ use Sub::Spec::GetArgs::Array qw(get_args_from_array);
 use Sub::Spec::URI;
 use URI::Escape;
 
-our $VERSION = '0.09'; # VERSION
+our $VERSION = '0.10'; # VERSION
 
 my $json = JSON->new->allow_nonref;
 
@@ -277,7 +277,7 @@ Plack::Middleware::SubSpec::ParseRequest - Parse HTTP request into SS request
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =head1 SYNOPSIS
 

@@ -18,7 +18,7 @@ use Scalar::Util qw(blessed);
 use Sub::Spec::Util qw(str_log_level);
 use Time::HiRes qw(gettimeofday);
 
-our $VERSION = '0.09'; # VERSION
+our $VERSION = '0.10'; # VERSION
 
 sub prepare_app {
     my $self = shift;
@@ -198,7 +198,7 @@ Plack::Middleware::SubSpec::HandleCommand - Handle command
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =head1 SYNOPSIS
 

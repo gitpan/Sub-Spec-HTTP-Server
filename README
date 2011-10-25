@@ -3,7 +3,7 @@ NAME
     subroutine call requests
 
 VERSION
-    version 0.09
+    version 0.10
 
 SYNOPSIS
     Suppose you want to expose functions in "My::API::Adder" and
@@ -204,10 +204,11 @@ TIPS AND TRICKS
   Performance tuning
     To be written.
 
+TODO
+    * Improve performance.
+
 SEE ALSO
     Sub::Spec::HTTP
-
-    Gepok
 
 AUTHOR
     Steven Haryanto <stevenharyanto@gmail.com>

@@ -17,7 +17,7 @@ my %module_build_args = (
     "Steven Haryanto <stevenharyanto\@gmail.com>"
   ],
   "dist_name" => "Sub-Spec-HTTP-Server",
-  "dist_version" => "0.09",
+  "dist_version" => "0.10",
   "license" => "perl",
   "module_name" => "Sub::Spec::HTTP::Server",
   "recommends" => {},
@@ -35,6 +35,7 @@ my %module_build_args = (
     "Log::Any::App" => 0,
     "Module::List" => 0,
     "Plack" => 0,
+    "Starman" => 0,
     "Sub::Spec" => "1.0.1",
     "Sub::Spec::CmdLine" => 0,
     "Sub::Spec::Gen::ForModule" => 0,
