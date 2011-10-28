@@ -14,7 +14,7 @@ use Plack::Util::SubSpec qw(errpage);
 use Sub::Spec::CmdLine ();
 use Sub::Spec::Gen::ForModule qw(gen_spec_for_module);
 
-our $VERSION = '0.10'; # VERSION
+our $VERSION = '0.11'; # VERSION
 
 our %SPEC;
 
@@ -150,7 +150,7 @@ sub serve {
                                   )?!x,
                 allowed_modules => \@modules,
                 after_parse => sub {
-                    my $env = shift;
+                    my ($self, $env) = @_;
                     my $m = $env->{"ss.uri_pattern_matches"};
                     my $mod = $m->{module};
                     if ($mod) {
@@ -169,7 +169,8 @@ sub serve {
                     $log->tracef("SS request: %s", $ssreq);
                     my $command = $ssreq->{command};
                     my $uri     = $ssreq->{uri};
-                    if ($uri->proto eq 'pm' && $command =~ /^(call|spec)$/) {
+                    if ($uri && $uri->proto eq 'pm' &&
+                            $command =~ /^(call|spec)$/) {
                         my $mod = $uri->module;
                         no strict 'refs';
                         my $spec = \%{"$mod\::SPEC"};
@@ -229,7 +230,7 @@ servepm - Serve Perl modules over HTTP(S) using the Sub::Spec::HTTP protocol
 
 =head1 VERSION
 
-version 0.10
+version 0.11
 
 =head1 SYNOPSIS
 

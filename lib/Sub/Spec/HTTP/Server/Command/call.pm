@@ -4,12 +4,13 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.10'; # VERSION
+our $VERSION = '0.11'; # VERSION
 
 sub handle_call {
     my ($env) = @_;
     my $ssu = $env->{"ss.request"}{uri};
     return [400, "SS request URI not specified"] unless $ssu;
+    return [400, "Sub not specified"] unless $ssu->sub;
 
     $ssu->call(%{$env->{"ss.request"}{args}});
 }
@@ -27,7 +28,7 @@ Sub::Spec::HTTP::Server::Command - Handle 'call' command (call subroutine and re
 
 =head1 VERSION
 
-version 0.10
+version 0.11
 
 =head1 SYNOPSIS
 
