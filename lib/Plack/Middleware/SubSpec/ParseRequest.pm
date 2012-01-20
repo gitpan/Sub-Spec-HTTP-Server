@@ -31,7 +31,7 @@ use Sub::Spec::GetArgs::Array qw(get_args_from_array);
 use Sub::Spec::URI;
 use URI::Escape;
 
-our $VERSION = '0.11'; # VERSION
+our $VERSION = '0.12'; # VERSION
 
 my $json = JSON->new->allow_nonref;
 
@@ -277,7 +277,7 @@ Plack::Middleware::SubSpec::ParseRequest - Parse HTTP request into SS request
 
 =head1 VERSION
 
-version 0.11
+version 0.12
 
 =head1 SYNOPSIS
 
@@ -438,7 +438,7 @@ Steven Haryanto <stevenharyanto@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by Steven Haryanto.
+This software is copyright (c) 2012 by Steven Haryanto.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

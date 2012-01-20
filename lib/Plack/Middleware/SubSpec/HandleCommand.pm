@@ -18,7 +18,7 @@ use Scalar::Util qw(blessed);
 use Sub::Spec::Util qw(str_log_level);
 use Time::HiRes qw(gettimeofday);
 
-our $VERSION = '0.11'; # VERSION
+our $VERSION = '0.12'; # VERSION
 
 sub prepare_app {
     my $self = shift;
@@ -198,7 +198,7 @@ Plack::Middleware::SubSpec::HandleCommand - Handle command
 
 =head1 VERSION
 
-version 0.11
+version 0.12
 
 =head1 SYNOPSIS
 
@@ -245,7 +245,7 @@ Steven Haryanto <stevenharyanto@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by Steven Haryanto.
+This software is copyright (c) 2012 by Steven Haryanto.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
